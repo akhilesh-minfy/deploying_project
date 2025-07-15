@@ -1,0 +1,7 @@
+name: my-demo-pipeline
+on:
+  workflow_dispatch:
+    inputs:
+      github_url: 
+      
+  
