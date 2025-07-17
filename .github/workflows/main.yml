@@ -1,18 +1,21 @@
 name: my-demo-pipeline
+
 on:
   workflow_dispatch:
     inputs:
-      image_name: 
+      image_name:
       user_name:
+
 jobs:
   first-job:
     runs-on: ubuntu-latest
     steps:
       - name: runner job
         uses: actions/checkout@v4
+
       - name: creating deployment
         run: |
-          cat << 'EOF' > deployment.yml
+          printf '%s\n' "\
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -33,11 +36,11 @@ spec:
       - name: ${{ inputs.user_name }}-container
         image: ${{ inputs.image_name }}
         ports:
-        - containerPort: 80
-  EOF
+        - containerPort: 80" > deployment.yml
+
       - name: creating service
         run: |
-          cat <<EOF > service.yml
+          printf '%s\n' "\
 apiVersion: v1
 kind: Service
 metadata:
@@ -49,8 +52,7 @@ spec:
   ports:
     - port: 80
       targetPort: 80
-      nodePort: 30007
-EOF
+      nodePort: 30007" > service.yml
 
       - name: copying script to instance
         uses: betanzos/scp-upload@v1
@@ -73,8 +75,7 @@ EOF
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
           script: |
-            cd ~
-            chmod +x docker-setup.sh
+            chmod 777 docker-setup.sh
             ./docker-setup.sh
             minikube start
             kubectl apply -f deployment.yml
