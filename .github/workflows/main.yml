@@ -1,10 +1,14 @@
-name: my-demo-pipeline
+name: cli-tool
 
 on:
   workflow_dispatch:
     inputs:
       image_name:
+        description: 'Docker image name'
+        required: true
       user_name:
+        description: 'Username for deployment'
+        required: true
 
 jobs:
   first-job:
@@ -15,7 +19,7 @@ jobs:
 
       - name: creating deployment
         run: |
-          printf '%s\n' "\
+          cat <<EOF > deployment.yml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -36,11 +40,12 @@ spec:
       - name: ${{ inputs.user_name }}-container
         image: ${{ inputs.image_name }}
         ports:
-        - containerPort: 80" > deployment.yml
+        - containerPort: 80
+EOF
 
       - name: creating service
         run: |
-          printf '%s\n' "\
+          cat <<EOF > service.yml
 apiVersion: v1
 kind: Service
 metadata:
@@ -52,7 +57,8 @@ spec:
   ports:
     - port: 80
       targetPort: 80
-      nodePort: 30007" > service.yml
+      nodePort: 30007
+EOF
 
       - name: copying script to instance
         uses: betanzos/scp-upload@v1
@@ -75,7 +81,8 @@ spec:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
           script: |
-            chmod 777 docker-setup.sh
+            cd ~
+            chmod +x docker-setup.sh
             ./docker-setup.sh
             minikube start
             kubectl apply -f deployment.yml
