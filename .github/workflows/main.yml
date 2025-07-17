@@ -4,17 +4,15 @@ on:
     inputs:
       image_name: 
       user_name:
-
 jobs:
   first-job:
     runs-on: ubuntu-latest
     steps:
       - name: runner job
         uses: actions/checkout@v4
-
       - name: creating deployment
         run: |
-          cat <<EOF > deployment.yml
+          cat << 'EOF' > deployment.yml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -36,8 +34,7 @@ spec:
         image: ${{ inputs.image_name }}
         ports:
         - containerPort: 80
-EOF
-
+  EOF
       - name: creating service
         run: |
           cat <<EOF > service.yml
