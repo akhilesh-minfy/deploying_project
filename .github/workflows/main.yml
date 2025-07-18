@@ -56,7 +56,6 @@ jobs:
             ports:
               - port: 80
                 targetPort: 80
-                nodePort: 30007
           EOF
 
       - name: copying script to instance
@@ -95,6 +94,6 @@ jobs:
           key: ${{ secrets.KEY }}
           script: |
             cd ~
-            minikube start
+            kind create cluster
             kubectl apply -f deployment.yml
             kubectl apply -f service.yml
